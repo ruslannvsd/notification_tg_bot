@@ -3,6 +3,7 @@ from telegram.ext import Application, CommandHandler, MessageHandler, filters, C
 
 import constants
 import get_post
+import time_functions
 
 
 # commands
@@ -12,8 +13,8 @@ async def start_command(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
 
 def handle_checking_news(word: str):
     news = get_post.get_retrieved(word)
-    if not news:
-        return [f"No news with {str(word)} are found"]
+    if news is False:
+        return False
     else:
         return news
 
@@ -28,10 +29,16 @@ async def handle_message(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     print(f"User {update.message.chat.id} in {message_type} : {text} (date: {date})")
     # checking if words are contained in latest news
     for txt in text:
-        response = handle_checking_news(txt)
-        for item in response:
-            await update.message.reply_text(item)
-        print("The End")
+        if handle_checking_news(txt) is not False:
+            response = handle_checking_news(txt)
+            for item in response:
+                time = time_functions.convert_to_readable_time(item.article_time)
+                article = f"{item.news_channel.channel_name}" \
+                          f"\n{item.article_link}\n{time}\n\n{item.article}"
+                await update.message.reply_text(article)
+        else:
+            await update.message.reply_text(f"No news with {txt} found.")
+        print("Done")
 
 
 # app body
