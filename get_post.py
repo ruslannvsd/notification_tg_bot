@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import requests
 from bs4 import BeautifulSoup
 
@@ -5,22 +7,21 @@ import constants
 
 
 def get_retrieved(word):
-    return_text = ""
-    # CHANNELS list consists of one news channel lists as
-    # ["Channel name", "https://t.me/s/telegram_address", "@telegram_address"]
+    return_list = [f"{str(word).upper()}:\n\n"]
     for channel in constants.CHANNELS:
         response = requests.get(channel[1])
-        # Parsing the HTML content using BeautifulSoup
         if response.status_code == 200:
-            # Parsing the HTML content
-            soup = BeautifulSoup(response.content, "html.parser")
-            # Find all the posts on the page
-            posts = soup.find_all("div", class_="tgme_widget_message_text")
-            # Iterate over each post and check if it contains some specific word
-            for post in posts:
-                post_text = post.text
-                if word in post_text.lower():
-                    return_text += f"{channel[0]}\n{post_text.strip()}\n{channel[2]}\n\n"
+            soup = BeautifulSoup(response.content, 'html.parser')
+            message_bubbles = soup.find_all('div', class_='tgme_widget_message_bubble')
+            for bubble in message_bubbles:
+                if word in bubble.text.lower():
+                    text = bubble.find('div', class_='tgme_widget_message_text').text
+                    link = bubble.find('a', class_='tgme_widget_message_date')['href']
+                    time = bubble.find('time', class_='time')['datetime']
+                    date_time = datetime.fromisoformat(time)
+                    formatted_time = date_time.strftime("%Y-%m-%d %H:%M:%S")
+                    text_to_add = f"{channel[0]}\n{link}\n{formatted_time}\n\n{text}\n{channel[2]}\n\n"
+                    return_list.append(text_to_add)
         else:
-            return_text = "Failed to retrieve the page"
-    return return_text
+            return_list = ["Failed to retrieve the page"]
+    return return_list

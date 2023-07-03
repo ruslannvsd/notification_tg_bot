@@ -13,18 +13,25 @@ async def start_command(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
 def handle_checking_news(word: str):
     news = get_post.get_retrieved(word)
     if not news:
-        return f"No news with {str(word)} are found"
+        return [f"No news with {str(word)} are found"]
     else:
         return news
 
 
 async def handle_message(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
+    # getting message type
     message_type = update.message.chat.type
-    text = update.message.text.lower()
+    # getting words a user entered
+    text = update.message.text.lower().split(" ")
+    # internal registration of the time a user made an entry
     date = update.message.date
     print(f"User {update.message.chat.id} in {message_type} : {text} (date: {date})")
-    response = handle_checking_news(text)
-    await update.message.reply_text(response)
+    # checking if words are contained in latest news
+    for txt in text:
+        response = handle_checking_news(txt)
+        for item in response:
+            await update.message.reply_text(item)
+        print("The End")
 
 
 # app body
