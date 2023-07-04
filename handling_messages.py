@@ -1,13 +1,13 @@
 from telegram import Update
 from telegram.ext import ContextTypes
 
-import get_post
+import get_retrieved
 import time_functions
 from news_channel_frequency import post_frequency
 
 
 def handle_checking_news(word: str):
-    news = get_post.get_retrieved(word)
+    news = get_retrieved.get_retrieved(word)
     if news is False:
         return False
     else:
@@ -18,7 +18,7 @@ async def handle_message(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     # getting message type
     message_type = update.message.chat.type
     # getting words a user entered
-    text = update.message.text.split(" ")
+    text = update.message.text.split("*")
     # internal registration of the time a user made an entry
     date = update.message.date
     print(f"User {update.message.chat.id} in {message_type} : {text} (date: {date})")
@@ -36,6 +36,7 @@ async def handle_message(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
                 await update.message.reply_text(article)
         else:
             await update.message.reply_text(f"No news with {txt} found.")
-        await update.message.reply_text(f"{amount} article(s).\nThat's all I've found for now."
+        await update.message.reply_text(f"Keyword: {txt}\n{amount} article(s)."
+                                        f"\nThat's all I've found for now."
                                         f"\n{post_frequency(response)}")
-        print("Processing completed")
+    print("Processing completed")
