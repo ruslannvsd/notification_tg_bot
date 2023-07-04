@@ -30,4 +30,3 @@ def get_retrieved(word):
         return False
     else:
         return sorted(article_list, key=lambda x: x.article_time)
-
