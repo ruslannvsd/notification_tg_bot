@@ -9,5 +9,5 @@ def convert_to_millis(datetime_str):
 
 def convert_to_readable_time(millis):
     datetime_obj = datetime.fromtimestamp(millis / 1000.0)
-    formatted_datetime = re.sub("AM$", "am", datetime_obj.strftime("%I.%M%p %d/%m/%y"))
+    formatted_datetime = datetime_obj.strftime("%I.%M%p %d/%m/%y")
     return formatted_datetime

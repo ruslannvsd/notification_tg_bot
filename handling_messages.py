@@ -7,7 +7,7 @@ from news_channel_frequency import post_frequency
 
 
 def handle_punctuation(text):
-    punctuation = r"""!"#$%&'()*+,-./:;<=>?@[\]^`{|}~"""
+    punctuation = r"""!"#$%&'()*+, -./:;<=>?@[\]^`{|}~"""
     for item in punctuation:
         if item in text:
             return f"Prohibited punctuation {item} was used. Try again."

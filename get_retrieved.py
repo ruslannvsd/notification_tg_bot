@@ -31,6 +31,7 @@ def get_retrieved(word):
             for br in soup.find_all("br"):
                 br.replace_with("\n")
             message_bubbles = soup.find_all('div', class_='tgme_widget_message_bubble')
+            both_words_present = len(word_list) == 2 and all(word in word_list for word in word_list)
             for bubble in message_bubbles:
                 div_text = bubble.find('div', class_='tgme_widget_message_text')
                 if div_text is not None and check is True:
@@ -38,14 +39,10 @@ def get_retrieved(word):
                     print(channel.channel_name, convert_to_readable_time(first_article_time))
                     channel.id = first_article_time
                     check = False
-                if len(word_list) != 0:
-                    if div_text is not None and \
-                            word_list[0] in div_text.text.lower() and \
-                            word_list[1] in div_text.text.lower():
-                        article = article_making(div_text, bubble, channel)
-                        article_list.append(article)
-                else:
-                    if div_text is not None and word in div_text.text.lower():
+                if div_text is not None:
+                    text_lower = div_text.text.lower()
+                    if (both_words_present and all(word in text_lower for word in word_list)) or \
+                            (not both_words_present and word in text_lower):
                         article = article_making(div_text, bubble, channel)
                         article_list.append(article)
         else:
