@@ -3,18 +3,19 @@ from bs4 import BeautifulSoup
 
 from classes import Article
 from constants import channels
-from data_constants import MESSAGE_DIV, TEXT_DIV, DIVIDER, TO_BE_REPLACED, TO_BE_INSERTED, SECTION
+from data_constants import MESSAGE_DIV, TEXT_DIV, DIVIDER, TO_BE_REPLACED, TO_BE_INSERTED, SECTION, DATETIME, D_TIME, \
+    LINK
 from time_functions import convert_to_millis
 
 
 def get_time(section):
-    time = section.find('time', class_='time')['datetime']
+    time = section.find(DATETIME, class_=DATETIME)[D_TIME]
     return convert_to_millis(time)
 
 
 def article_making(div_text, section, channel):
     text = div_text.text
-    link = section.find('a', class_=SECTION)['href']
+    link = section.find('a', class_=SECTION)[LINK]
     time_in_millis = get_time(section)
     return Article(channel, text, time_in_millis, link)
 
