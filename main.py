@@ -3,7 +3,7 @@ from telegram.ext import Application, CommandHandler, MessageHandler, filters, C
 
 import constants
 from handling_messages import handle_message
-from sensitive_constants import TOKEN
+from data_constants import TOKEN
 
 
 # commands
@@ -19,5 +19,6 @@ if __name__ == "__main__":
     # commands
     app.add_handler(CommandHandler("start", start_command))
     app.add_handler(MessageHandler(filters.TEXT, handle_message))
+
     print("Polling ...")
     app.run_polling(3)

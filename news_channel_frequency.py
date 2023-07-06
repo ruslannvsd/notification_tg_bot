@@ -16,5 +16,5 @@ def post_frequency(article_list):
     string = ""
     articles_counted = frequency_of_class_instances(article_list)
     for item in articles_counted:
-        string += f"\n\n{item[0]} - {item[1]}"
+        string += f"\n\n{item[0]} : {item[1]}"
     return string

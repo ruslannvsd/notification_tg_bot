@@ -3,7 +3,7 @@ from telegram.ext import ContextTypes
 
 import get_retrieved
 import time_functions
-from news_channel_frequency import post_frequency
+from data_constants import reply_text, nothing_found
 
 
 def handle_punctuation(text):
@@ -44,10 +44,8 @@ async def handle_message(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
                           f"\n{item.article_link}\n{time_}\n\n{item.article}"
                 await update.message.reply_text(article)
         else:
-            await update.message.reply_text(f"No news with {text} found.")
-        await update.message.reply_text(f"Keyword: {text}\n{amount} article(s)."
-                                        f"\nThat's all I've found for now."
-                                        f"\n{post_frequency(response)}")
+            await update.message.reply_text(nothing_found(text))
+        await update.message.reply_text(reply_text(text, amount, response))
         print("Processing completed")
     else:
         await update.message.reply_text(str(checked_text))
