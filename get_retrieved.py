@@ -1,7 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 
-from classes import Article
+from classes_folder.article import Article
 from constants import channels
 from data_constants import MESSAGE_DIV, TEXT_DIV, DIVIDER, TO_BE_REPLACED, TO_BE_INSERTED, SECTION, DATETIME, D_TIME, \
     LINK

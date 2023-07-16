@@ -49,3 +49,22 @@ async def handle_message(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
         print("Processing completed")
     else:
         await update.message.reply_text(str(checked_text))
+
+
+def auto_text(text):
+    response = []
+    articles = []
+    amount = 0
+    if handle_checking_news(text.lower()) is not False:
+        response = handle_checking_news(text.lower())
+        amount = len(response)
+        for item in response:
+            time_ = time_functions.convert_to_readable_time(item.article_time)
+            article = f"{item.news_channel.channel_name}" \
+                      f"\n{item.article_link}\n{time_}\n\n{item.article}"
+            articles.append(article)
+    else:
+        articles.append(nothing_found(text))
+    final_message = reply_text(text, amount, response)
+    print("Processing completed")
+    return articles, final_message
