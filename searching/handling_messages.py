@@ -1,9 +1,9 @@
 from telegram import Update
 from telegram.ext import ContextTypes
 
-import get_retrieved
-import time_functions
-from data_constants import reply_text, nothing_found
+from searching import get_retrieved
+from utils import time_functions
+from constants.data_constants import reply_text, nothing_found
 
 
 def handle_punctuation(text):

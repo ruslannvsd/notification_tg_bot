@@ -2,10 +2,10 @@ import requests
 from bs4 import BeautifulSoup
 
 from classes_folder.article import Article
-from constants import channels
-from data_constants import MESSAGE_DIV, TEXT_DIV, DIVIDER, TO_BE_REPLACED, TO_BE_INSERTED, SECTION, DATETIME, D_TIME, \
+from constants.constants import channels
+from constants.data_constants import MESSAGE_DIV, TEXT_DIV, DIVIDER, TO_BE_REPLACED, TO_BE_INSERTED, SECTION, DATETIME, D_TIME, \
     LINK
-from time_functions import convert_to_millis
+from utils.time_functions import convert_to_millis
 
 
 def get_time(section):

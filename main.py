@@ -1,35 +1,40 @@
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, MessageHandler, filters
 
-import constants
-from commands.disable_enable import set_enable_disable
-from commands.keywords import keywords_command
+from constants import constants
+from options.disable_enable import set_enable_disable
+from options.keywords import keywords_command, enter_keywords
 from commands.menu_command import menu_command_f
 from commands.start import start_command
-from data_constants import TOKEN
-from handling_messages import handle_message
+from constants.data_constants import TOKEN
+from searching.handling_messages import handle_message
 
 
 async def button_click(update, ctx):
     query = update.callback_query
     option = query.data
     user_id = query.message.chat.id
+    text = ""
 
     # handling different options
     if option == "option1":
-        await query.answer(text="Enter/change keywords")
-        await keywords_command(user_id)
+        text = "Enter/change keywords:"
+        await app.bot.send_message(user_id, keywords_command(user_id))
+        app.add_handler(MessageHandler(filters.TEXT, enter_keywords))
     elif option == "option2":
-        with open(f"{constants.PATH}/{user_id}.txt") as file:
+        with open(f"{constants.PATH}/{user_id}.txt", "r", encoding="utf-8") as file:
             lines = file.readlines()
-            status = "disabled" if lines[3].strip() == "enabled" else "enabled"
-            await query.answer(text=status)
+            status = "disabled" if lines[2].strip() == "enabled" else "enabled"
+            text = f"Your subscription is {status}"
         set_enable_disable(user_id)
     elif option == "option3":
-        await query.answer(text="Set time")
+        text = "Set time in the following format,\n" \
+               "where HH - starting hour of the day\n" \
+               "x - hour-frequency:\nHH, x"
     elif option == "option4":
-        await query.answer(text="Enter keyword to find news now")
+        text = "Enter keyword(s) to check news now:"
         app.add_handler(MessageHandler(filters.TEXT, handle_message))
-
+    await update.effective_message.edit_reply_markup(None)
+    await app.bot.send_message(user_id, text)
 
 # app body
 if __name__ == "__main__":

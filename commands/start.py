@@ -3,14 +3,14 @@ import os
 from telegram import Update
 from telegram.ext import ContextTypes
 
-import constants
 from classes_folder.user import User
+from constants import constants
 
 
 def create_txt_file(user):
     if not os.path.exists(f"{constants.PATH}/{user.user_id}.txt"):
-        with open(f"{constants.PATH}/{user.user_id}.txt", "w") as f:
-            f.write(f"{user.user_id}\n{user.keywords}\n{user.time_period}\n{user.enable_disable}")
+        with open(f"{constants.PATH}/{user.user_id}.txt", "r") as f:
+            f.write(f"{user.time_period}\n{user.keywords}\n{user.enable_disable}")
 
 
 # commands

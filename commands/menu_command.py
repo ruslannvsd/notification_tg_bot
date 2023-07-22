@@ -1,12 +1,12 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 
-import constants
+from constants import constants
 
 
 def menu_f(user_id):
-    with open(f"{constants.PATH}/{user_id}.txt") as file:
+    with open(f"{constants.PATH}/{user_id}.txt", "r", encoding="utf-8") as file:
         lines = file.readlines()
-        status = "Disable" if lines[3].strip() == "enabled" else "Enable"
+        status = "Disable" if lines[2].strip() == "enabled" else "Enable"
         menu_items = [
             [InlineKeyboardButton("Enter/change keywords", callback_data='option1')],
             [InlineKeyboardButton(status, callback_data='option2')],
@@ -17,4 +17,4 @@ def menu_f(user_id):
 
 
 async def menu_command_f(update, ctx):
-    await update.message.reply_text("Choose your option:", reply_markup=menu_f(update.message.chat.id))
+    await update.message.reply_text("Menu:", reply_markup=menu_f(update.message.chat.id))

@@ -1,8 +1,8 @@
 import time
 
-from data_constants import KEYWORDS, USER_ID
-from handling_messages import auto_text
-from time_functions import convert_to_readable_time
+from constants.data_constants import KEYWORDS, USER_ID
+from searching.handling_messages import auto_text
+from utils.time_functions import convert_to_readable_time
 
 
 def auto_news(bot):
