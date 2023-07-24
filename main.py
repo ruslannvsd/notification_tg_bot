@@ -1,47 +1,70 @@
-from telegram.ext import Application, CommandHandler, CallbackQueryHandler, MessageHandler, filters
+from telegram.ext import Application, CommandHandler, MessageHandler, filters, ConversationHandler
 
-from constants import constants
-from options.disable_enable import set_enable_disable
-from options.keywords import keywords_command, enter_keywords
-from commands.menu_command import menu_command_f
-from commands.start import start_command
+from classes_folder.user import User
+from commands.start import create_txt_file
+from constants.general_constants import COMMANDS, WELCOME_MESSAGE, BODY, FIND, TIME, SAVE_KEY, SAVE_TIME, keyboard, \
+    time_keyboard
 from constants.data_constants import TOKEN
+from keywords.change_keywords import saving_keywords, keywords_command
+from options.disable_enable import set_enable_disable
 from searching.handling_messages import handle_message
+from time_mng.time_setting import set_time
 
 
-async def button_click(update, ctx):
-    query = update.callback_query
-    option = query.data
-    user_id = query.message.chat.id
-    text = ""
+async def start_command(update, ctx):
+    user_id = update.message.chat.id
+    user = User(user_id, "", 0, "disabled")
+    create_txt_file(user)
+    await update.message.reply_text(WELCOME_MESSAGE, reply_markup=keyboard)
+    return BODY
 
-    # handling different options
-    if option == "option1":
-        text = "Enter/change keywords:"
-        await app.bot.send_message(user_id, keywords_command(user_id))
-        app.add_handler(MessageHandler(filters.TEXT, enter_keywords))
-    elif option == "option2":
-        with open(f"{constants.PATH}/{user_id}.txt", "r", encoding="utf-8") as file:
-            lines = file.readlines()
-            status = "disabled" if lines[2].strip() == "enabled" else "enabled"
-            text = f"Your subscription is {status}"
-        set_enable_disable(user_id)
-    elif option == "option3":
-        text = "Set time in the following format,\n" \
-               "where HH - starting hour of the day\n" \
-               "x - hour-frequency:\nHH, x"
-    elif option == "option4":
-        text = "Enter keyword(s) to check news now:"
-        app.add_handler(MessageHandler(filters.TEXT, handle_message))
-    await update.effective_message.edit_reply_markup(None)
+
+async def find_now(update, ctx) -> int:
+    user_id = update.message.chat.id
+    text = "Enter keyword(s) to check news now:"
     await app.bot.send_message(user_id, text)
+    return FIND
+
+
+async def keywords_f(update, ctx):
+    user_id = update.message.chat.id
+    text = "Enter/change keywords:"
+    await app.bot.send_message(user_id, keywords_command(user_id))
+    await app.bot.send_message(user_id, text)
+    return SAVE_KEY
+
+
+async def before_time_set(update, ctx):
+    text = "Choose a period of time of monitoring:"
+    await update.message.reply_text(text, reply_markup=time_keyboard)
+    return SAVE_TIME
+
 
 # app body
 if __name__ == "__main__":
     print("Starting the bot ...")
     app = Application.builder().token(TOKEN).build()
-    app.add_handler(CommandHandler(constants.COMMANDS[0], start_command))
-    app.add_handler(CommandHandler(constants.COMMANDS[1], menu_command_f))
-    app.add_handler(CallbackQueryHandler(button_click))
+    conv_handler = ConversationHandler(
+        entry_points=[CommandHandler("start", start_command)],
+        states={
+            BODY: [
+                MessageHandler(filters.Regex("^findnow$"), find_now),
+                MessageHandler(filters.Regex("^keywords$"), keywords_f),
+                MessageHandler(filters.Regex("^timeset$"), before_time_set),
+                MessageHandler(filters.Regex("^enabling$"), set_enable_disable)
+            ],
+            FIND: [
+                MessageHandler(filters.TEXT, handle_message)
+            ],
+            SAVE_KEY: [
+                MessageHandler(filters.TEXT, saving_keywords)
+            ],
+            SAVE_TIME: [
+                MessageHandler(filters.TEXT, set_time)
+            ]
+        },
+        fallbacks=[CommandHandler("start", start_command)]
+    )
+    app.add_handler(conv_handler)
     print("Polling ...")
     app.run_polling(3)
