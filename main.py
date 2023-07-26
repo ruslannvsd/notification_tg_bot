@@ -1,14 +1,19 @@
-from telegram.ext import Application, CommandHandler, MessageHandler, filters, ConversationHandler
+import time
+
+from telegram.ext import Application, CommandHandler, MessageHandler, filters, ConversationHandler, CallbackContext, \
+    ContextTypes
 
 from classes_folder.user import User
-from commands.start import create_txt_file
-from constants.general_constants import COMMANDS, WELCOME_MESSAGE, BODY, FIND, TIME, SAVE_KEY, SAVE_TIME, keyboard, \
-    time_keyboard
+from commands.create_txt import create_txt_file, cancel_command
+from constants.general_constants import WELCOME_MESSAGE, BODY, FIND, SAVE_KEY, SAVE_TIME, keyboard, time_keyboard, \
+    COMMANDS
 from constants.data_constants import TOKEN
 from keywords.change_keywords import saving_keywords, keywords_command
+from open_files.auto_news import auto_searching, all_users
 from options.disable_enable import set_enable_disable
-from searching.handling_messages import handle_message
+from searching.handling_messages import handle_message, auto_text
 from time_mng.time_setting import set_time
+from utils.time_functions import convert_to_readable_time
 
 
 async def start_command(update, ctx):
@@ -19,7 +24,7 @@ async def start_command(update, ctx):
     return BODY
 
 
-async def find_now(update, ctx) -> int:
+async def find_now(update, ctx):
     user_id = update.message.chat.id
     text = "Enter keyword(s) to check news now:"
     await app.bot.send_message(user_id, text)
@@ -40,18 +45,14 @@ async def before_time_set(update, ctx):
     return SAVE_TIME
 
 
-# app body
-if __name__ == "__main__":
-    print("Starting the bot ...")
-    app = Application.builder().token(TOKEN).build()
-    conv_handler = ConversationHandler(
-        entry_points=[CommandHandler("start", start_command)],
+conv_handler = ConversationHandler(
+        entry_points=[CommandHandler(COMMANDS[0], start_command)],
         states={
             BODY: [
-                MessageHandler(filters.Regex("^findnow$"), find_now),
-                MessageHandler(filters.Regex("^keywords$"), keywords_f),
-                MessageHandler(filters.Regex("^timeset$"), before_time_set),
-                MessageHandler(filters.Regex("^enabling$"), set_enable_disable)
+                MessageHandler(filters.Regex(f"^{COMMANDS[1]}$"), find_now),
+                MessageHandler(filters.Regex(f"^{COMMANDS[2]}$"), keywords_f),
+                MessageHandler(filters.Regex(f"^{COMMANDS[3]}$"), before_time_set),
+                MessageHandler(filters.Regex(f"^{COMMANDS[4]}$"), set_enable_disable),
             ],
             FIND: [
                 MessageHandler(filters.TEXT, handle_message)
@@ -63,8 +64,16 @@ if __name__ == "__main__":
                 MessageHandler(filters.TEXT, set_time)
             ]
         },
-        fallbacks=[CommandHandler("start", start_command)]
+        fallbacks=[CommandHandler(f"{COMMANDS[5]}", cancel_command)]
     )
+
+
+# app body
+if __name__ == "__main__":
+    print("Starting the bot ...")
+    app = Application.builder().token(TOKEN).build()
     app.add_handler(conv_handler)
-    print("Polling ...")
+    job_queue = app.job_queue
+
+    job_minute = job_queue.run_repeating(auto_searching, interval=3600, first=5)
     app.run_polling(3)

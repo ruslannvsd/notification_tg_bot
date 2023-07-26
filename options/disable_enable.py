@@ -11,7 +11,6 @@ async def set_enable_disable(update, ctx) -> int:
         new_status = "disabled" if lines[2].strip() == "enabled" else "enabled"
         keywords = lines[1].strip()
         print(new_status)
-        file.close()
         with open(f"{PATH}/{user_id}.txt", "w", encoding="utf-8") as f:
             user = User(user_id, keywords, time_period, new_status)
             f.write(user_data_ordered(user))

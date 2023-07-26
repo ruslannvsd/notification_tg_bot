@@ -1,5 +1,8 @@
 import collections
+import os
+import time
 
+from constants.general_constants import PATH
 from utils import time_functions
 
 
@@ -34,3 +37,18 @@ def post_frequency(article_list):
 
 def user_data_ordered(user):
     return f"{user.time_period}\n{user.keywords}\n{user.enable_disable}"
+
+
+def detect_time_of_day():
+    current_time = time.time()
+    seconds_since_midnight = current_time % 86400
+    hours_since_midnight = seconds_since_midnight // 3600
+    if hours_since_midnight == 22:
+        return True
+    else:
+        return False
+
+
+def files_list():
+    raw_files = os.listdir(PATH)
+    return raw_files

@@ -11,11 +11,9 @@ async def set_time(update, ctx):
         keywords = lines[1].strip()
         status = lines[2].strip()
         print(f"{user_id} {lines}\n{keywords} {time} {status}")
-        file.close()
         with open(f"{PATH}/{user_id}.txt", "w", encoding="utf-8") as f:
             user = User(user_id, keywords, time, status)
             f.write(user_data_ordered(user))
-            f.close()
         message = f"You've updated time: {time}."
         if status == "disabled":
             message += "\nYou need to Enable the subscription to receive news."
