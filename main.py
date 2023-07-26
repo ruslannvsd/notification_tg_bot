@@ -1,19 +1,15 @@
-import time
-
-from telegram.ext import Application, CommandHandler, MessageHandler, filters, ConversationHandler, CallbackContext, \
-    ContextTypes
+from telegram.ext import Application, CommandHandler, MessageHandler, filters, ConversationHandler
 
 from classes_folder.user import User
-from commands.create_txt import create_txt_file, cancel_command
 from constants.general_constants import WELCOME_MESSAGE, BODY, FIND, SAVE_KEY, SAVE_TIME, keyboard, time_keyboard, \
     COMMANDS
 from constants.data_constants import TOKEN
 from keywords.change_keywords import saving_keywords, keywords_command
-from open_files.auto_news import auto_searching, all_users
-from options.disable_enable import set_enable_disable
-from searching.handling_messages import handle_message, auto_text
+from auto_notification.auto_news import auto_searching
+from enabling.disable_enable import set_enable_disable
+from searching.handling_messages import handle_message
 from time_mng.time_setting import set_time
-from utils.time_functions import convert_to_readable_time
+from utils.file_functions import create_txt_file
 
 
 async def start_command(update, ctx):
@@ -64,7 +60,7 @@ conv_handler = ConversationHandler(
                 MessageHandler(filters.TEXT, set_time)
             ]
         },
-        fallbacks=[CommandHandler(f"{COMMANDS[5]}", cancel_command)]
+        fallbacks=[CommandHandler(f"{COMMANDS[5]}", start_command)]
     )
 
 

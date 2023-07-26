@@ -1,6 +1,6 @@
 from classes_folder.user import User
 from constants.general_constants import PATH, BODY, keyboard
-from utils.message_functions import user_data_ordered
+from utils.file_functions import user_data_ordered
 
 
 async def set_time(update, ctx):
