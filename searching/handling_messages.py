@@ -1,7 +1,9 @@
+import time
+
 from telegram import Update
 from telegram.ext import ContextTypes
 
-from constants.general_constants import BODY
+from constants.general_constants import BODY, CHECK_TIME
 from searching import get_retrieved
 from utils import time_functions
 from utils.message_functions import nothing_found, reply_text
@@ -50,17 +52,20 @@ async def handle_message(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
 
 
 def auto_text(text):
+    now = time.time()
     response = []
     articles = []
     amount = 0
     if handle_checking_news(text.lower()) is not False:
         response = handle_checking_news(text.lower())
-        amount = len(response)
+        # amount = len(response)
         for item in response:
-            time_ = time_functions.convert_to_readable_time(item.article_time)
-            article = f"{item.news_channel.channel_name}" \
-                      f"\n{item.article_link}\n{time_}\n\n{item.article}"
-            articles.append(article)
+            if item.article_time < now - CHECK_TIME - 1:
+                amount += amount
+                time_ = time_functions.convert_to_readable_time(item.article_time)
+                article = f"{item.news_channel.channel_name}" \
+                          f"\n{item.article_link}\n{time_}\n\n{item.article}"
+                articles.append(article)
     else:
         articles.append(nothing_found(text))
     final_message = reply_text(text, amount, response)

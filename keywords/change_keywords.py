@@ -5,6 +5,8 @@ from utils.file_functions import user_data_ordered
 
 
 def change_keywords(user_id, keywords_list):
+    # a user entered new keywords we here to rewrite them
+    # we sent him his current keywords & we notified him/her about rewriting
     with open(f"{PATH}/{user_id}.txt", "r", encoding="utf-8") as file:
         lines = file.readlines()
         keywords = list_to_string(keywords_list)

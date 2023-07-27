@@ -2,7 +2,7 @@ from telegram.ext import Application, CommandHandler, MessageHandler, filters, C
 
 from classes_folder.user import User
 from constants.general_constants import WELCOME_MESSAGE, BODY, FIND, SAVE_KEY, SAVE_TIME, keyboard, time_keyboard, \
-    COMMANDS
+    COMMANDS, CHECK_TIME
 from constants.data_constants import TOKEN
 from keywords.change_keywords import saving_keywords, keywords_command
 from auto_notification.auto_news import auto_searching
@@ -70,6 +70,5 @@ if __name__ == "__main__":
     app = Application.builder().token(TOKEN).build()
     app.add_handler(conv_handler)
     job_queue = app.job_queue
-
-    job_minute = job_queue.run_repeating(auto_searching, interval=3600, first=5)
+    job_minute = job_queue.run_repeating(auto_searching, interval=CHECK_TIME, first=5)
     app.run_polling(3)
