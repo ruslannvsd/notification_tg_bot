@@ -2,9 +2,9 @@ import requests
 from bs4 import BeautifulSoup
 
 from classes_folder.article import Article
-from constants.news_constants import channels
 from constants.data_constants import MESSAGE_DIV, TEXT_DIV, DIVIDER, TO_BE_REPLACED, TO_BE_INSERTED, SECTION, DATETIME, D_TIME, \
     LINK
+from database.chg_channels import get_current_channel_list
 from utils.time_functions import convert_to_millis
 
 
@@ -17,17 +17,20 @@ def article_making(div_text, section, channel):
     text = div_text.text
     link = section.find('a', class_=SECTION)[LINK]
     time_in_millis = get_time(section)
-    return Article(channel, text, time_in_millis, link)
+    return Article(channel[1:], text, time_in_millis, link)
 
 
-def get_retrieved(word):
+def get_retrieved(user_id, word):
+    print(user_id)
     article_list = []
     word_list = []
     if DIVIDER in word:
         word_list = word.split(DIVIDER)
-    for channel in channels:
+    current_chn_list = get_current_channel_list(user_id).split(" ")
+    for channel in current_chn_list:
         check = True
-        response = requests.get(channel.channel_link_1)
+        web_link = "https://t.me/s/" + channel[1:]
+        response = requests.get(web_link)
         if response.status_code == 200:
             soup = BeautifulSoup(response.content, 'html.parser')
             for br in soup.find_all(TO_BE_REPLACED):
@@ -37,8 +40,8 @@ def get_retrieved(word):
             for section in message_sections:
                 div_text = section.find('div', class_=TEXT_DIV)
                 if div_text is not None and check is True:
-                    first_article_time = get_time(section)
-                    channel.id = first_article_time
+                    # first_article_time = get_time(section)
+                    # channel.id = first_article_time
                     check = False
                 if div_text is not None:
                     text_lower = div_text.text.lower()

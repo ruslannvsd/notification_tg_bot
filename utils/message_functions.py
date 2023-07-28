@@ -13,7 +13,8 @@ def nothing_found(text):
 
 
 def counter_text(article):
-    return f"{article.news_channel.channel_name} " \
+    name = article.news_channel.channel_link_2
+    return f"{name[1:]} " \
            f"{time_functions.convert_to_readable_time(article.news_channel.id)}\n" \
            f"{article.news_channel.channel_link_2}"
 
