@@ -9,5 +9,5 @@ def get_or_create_user(user_id):
         user = User(user_id, [], 0, False, []).to_dict()
         insert_user(user)
     else:
-        print(user)
+        print("User already exists")
     return user

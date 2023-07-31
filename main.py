@@ -1,19 +1,19 @@
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ConversationHandler
 
-from auto_notification.auto_news import auto_searching
 from constants.general_constants import WELCOME_MESSAGE, BODY, FIND, SAVE_KEY, SAVE_TIME, keyboard, time_keyboard, \
     COMMANDS, ENTER_CHANNELS
 from constants.data_constants import TOKEN
 from database.checking import get_or_create_user
 from database.chg_channels import adding_channels, get_current_channel_list
+from database.chg_kw import saving_keywords
 from database.chg_status import change_status
-from keywords.change_keywords import saving_keywords
-from searching.handling_messages import handle_message
 from database.chg_time_period import set_time
+from searching.keyword_processing import find_keyword_now, find_kw_periodically
 
 
 async def start_command(update, ctx):
-    get_or_create_user(update.message.chat.id)
+    user_id = update.message.chat.id
+    get_or_create_user(user_id)
     await update.message.reply_text(WELCOME_MESSAGE, reply_markup=keyboard)
     return BODY
 
@@ -61,7 +61,7 @@ conv_handler = ConversationHandler(
                 MessageHandler(filters.Regex(f"^{COMMANDS[5]}$"), add_channel)
             ],
             FIND: [
-                MessageHandler(filters.TEXT, handle_message)
+                MessageHandler(filters.TEXT, find_keyword_now)
             ],
             SAVE_KEY: [
                 MessageHandler(filters.TEXT, saving_keywords)
@@ -83,5 +83,5 @@ if __name__ == "__main__":
     app = Application.builder().token(TOKEN).build()
     app.add_handler(conv_handler)
     job_queue = app.job_queue
-    job_queue.run_repeating(auto_searching, interval=14400, first=5)
+    job_queue.run_repeating(find_kw_periodically, interval=14400, first=3)
     app.run_polling(3)

@@ -16,13 +16,16 @@ def get_all_users():
     users_col = get_users_col()
     all_users = []
     for user_data in users_col.find():
-        user = User(
-            user_id=user_data["id"],
-            keywords=user_data["keywords"],
-            time_period=user_data["period"],
-            status=user_data["status"],
-            channels=user_data["channels"]
-        )
-        all_users.append(user)
-
+        all_users.append(get_one_user(user_data))
     return all_users
+
+
+def get_one_user(user_data):
+    user = User(
+        user_id=user_data["id"],
+        keywords=user_data["keywords"],
+        time_period=user_data["period"],
+        status=user_data["status"],
+        channels=user_data["channels"]
+    )
+    return user
