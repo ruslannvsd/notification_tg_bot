@@ -4,11 +4,17 @@ from telegram import Update
 from telegram.ext import ContextTypes
 
 from classes_folder.article import NewArticle
-from constants.data_constants import TO_BE_REPLACED, TO_BE_INSERTED, MESSAGE_DIV, TEXT_DIV, SECTION, LINK
+from constants.data_constants import TO_BE_REPLACED, TO_BE_INSERTED, MESSAGE_DIV, TEXT_DIV, SECTION, LINK, DATETIME, \
+    D_TIME
 from database.database import get_all_users
 from database.getting import get_user
-from searching.get_retrieved import get_time
 from utils.message_functions import article_msg
+from utils.time_functions import convert_to_millis
+
+
+def get_time(section):
+    time = section.find(DATETIME, class_=DATETIME)[D_TIME]
+    return convert_to_millis(time)
 
 
 def handle_punctuation(word_list):
