@@ -1,12 +1,12 @@
 import collections
 import time
 
-from classes_folder.article import NewArticle
+from classes_folder.article import Article
 from utils import time_functions
 from utils.time_functions import convert_to_readable_time
 
 
-def article_msg(article: NewArticle):
+def article_msg(article: Article):
     article_time = convert_to_readable_time(article.article_time)
     return f"{article.channel_name}\n{article_time}\n\n{article.article}\n\n{article.article_link}"
 
