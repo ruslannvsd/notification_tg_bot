@@ -36,21 +36,23 @@ async def find_kw_periodically(ctx: ContextTypes.DEFAULT_TYPE):
     users = get_all_users()
     for user in users:
         user_id = user.user_id
-        word_list = user.keywords
-        print(f"{user_id} has {word_list}.")
-        checked_words = handle_punctuation(word_list)
-        if checked_words == word_list:
-            for word in word_list:
-                articles = finding(word, user_id)
-                if articles[0]:
-                    for article in articles[0]:
-                        article_reply = article_msg(article)
-                        await ctx.bot.send_message(chat_id=user.user_id, text=article_reply)
-                    await ctx.bot.send_message(chat_id=user.user_id, text=articles[1])  # frequency of channels
-                    await ctx.bot.send_message(chat_id=user.user_id, text=FLAG)
-                else:
-                    print(f"Nothing with {word} has been found.")
-        print(f"Search for {user_id} has been completed")
+        status = user.enable_disable
+        if status is True:
+            word_list = user.keywords
+            print(f"{user_id} has {word_list}.")
+            checked_words = handle_punctuation(word_list)
+            if checked_words == word_list:
+                for word in word_list:
+                    articles = finding(word, user_id)
+                    if articles[0]:
+                        for article in articles[0]:
+                            article_reply = article_msg(article)
+                            await ctx.bot.send_message(chat_id=user.user_id, text=article_reply)
+                        await ctx.bot.send_message(chat_id=user.user_id, text=articles[1])  # frequency of channels
+                        await ctx.bot.send_message(chat_id=user.user_id, text=FLAG)
+                    else:
+                        print(f"Nothing with {word} has been found.")
+            print(f"Search for {user_id} has been completed")
     return BODY
 
 

@@ -93,5 +93,5 @@ if __name__ == "__main__":
     app = Application.builder().token(TOKEN).build()
     app.add_handler(conv_handler)
     job_queue = app.job_queue
-    job_queue.run_repeating(find_kw_periodically, interval=14400, first=3)
+    job_queue.run_repeating(find_kw_periodically, interval=7200, first=3)
     app.run_polling(3)
