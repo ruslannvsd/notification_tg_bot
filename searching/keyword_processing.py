@@ -1,5 +1,3 @@
-import time
-
 import requests
 from bs4 import BeautifulSoup
 from telegram import Update
@@ -40,14 +38,19 @@ async def find_kw_periodically(ctx: ContextTypes.DEFAULT_TYPE):
         user_id = user.user_id
         word_list = user.keywords
         print(f"{user_id} has {word_list}.")
-        articles = finding(word_list, user_id)
-        if articles[0]:
-            for article in articles[0]:
-                article_reply = article_msg(article)
-                await ctx.bot.send_message(chat_id=user.user_id, text=article_reply)
-        if articles[1]:
-            await ctx.bot.send_message(chat_id=user.user_id, text=articles[1])  # frequency of channels
+        checked_words = handle_punctuation(word_list)
+        if checked_words == word_list:
+            for word in word_list:
+                articles = finding(word, user_id)
+                if articles[0]:
+                    for article in articles[0]:
+                        article_reply = article_msg(article)
+                        await ctx.bot.send_message(chat_id=user.user_id, text=article_reply)
+                    await ctx.bot.send_message(chat_id=user.user_id, text=articles[1])  # frequency of channels
+                else:
+                    print(f"Nothing with {word} has been found.")
         print(f"Search for {user_id} has been completed")
+    return BODY
 
 
 async def find_keyword_now(update: Update, ctx):
@@ -55,35 +58,31 @@ async def find_keyword_now(update: Update, ctx):
     word_list = update.message.text.strip().split()
     date = update.message.date
     print(f"User {user_id} : {word_list} (date: {date})")
-    articles = finding(word_list, user_id)
-    if articles[0]:
-        for article in articles[0]:
-            article_reply = article_msg(article)
-            await update.message.reply_text(article_reply)
-    if articles[1]:
-        await update.message.reply_text(articles[1])  # frequency of channels
+    checked_words = handle_punctuation(word_list)
+    if checked_words == word_list:
+        for word in word_list:
+            articles = finding(word, user_id)
+            if articles[0]:
+                for article in articles[0]:
+                    article_reply = article_msg(article)
+                    await update.message.reply_text(article_reply)
+                await update.message.reply_text(articles[1])  # frequency of channels
+            else:
+                await update.message.reply_text(f"Nothing with {word} has been found.")
     else:
-        await update.message.reply_text("Nothing is found.")
+        await update.message.reply_text(checked_words)
     return BODY
 
 
-def finding(word_list, user_id):
-    user = get_user(user_id)
-    keywords = word_list if word_list else user["keywords"]
-    print(keywords)
+def finding(word, user_id):
     channels = get_user(user_id)["channels"]
-    checked_words = handle_punctuation(keywords)
-    if checked_words == keywords:
-        return word_news(keywords, channels)
-    else:
-        return str(checked_words)
+    return word_news(word, channels)
 
 
-def word_news(words, channels):
-    for word in words:
-        articles: list[Article] = check_chs_for_news(word.lower(), channels)
-        frequency = chn_frequency(articles, word)  # frequency of channels among articles being found
-        return articles, frequency
+def word_news(word, channels):
+    articles: list[Article] = check_chs_for_news(word.lower(), channels)
+    frequency = chn_frequency(articles, word)  # frequency of channels among articles being found
+    return articles, frequency
 
 
 def br_removing(br_soup):
@@ -104,14 +103,25 @@ def check_chs_for_news(word, channels):
                 article_body = section.find('div', class_=TEXT_DIV)
                 if article_body is not None:
                     article_body_lower = article_body.text.lower()
-                    if word in article_body_lower:
-                        milli_time = get_time(section)
-                        # if news time falls within one last 24 hours then the article is added to the list
-                        if within_one_day(milli_time):
-                            link = section.find('a', class_=SECTION)[LINK]
-                            chn_name = chn["link_2"]
-                            article = Article(chn_name, article_body.text, milli_time, link)
-                            article_list.append(article)
+                    if "_" not in word:
+                        if word in article_body_lower:
+                            milli_time = get_time(section)
+                            # if news time falls within one last 24 hours then the article is added to the list
+                            if within_one_day(milli_time):
+                                link = section.find('a', class_=SECTION)[LINK]
+                                chn_name = chn["link_2"]
+                                article = Article(chn_name, article_body.text, milli_time, link)
+                                article_list.append(article)
+                    else:
+                        phrase = word.split("_")
+                        if phrase[0] in article_body_lower and phrase[1] in article_body_lower:
+                            milli_time = get_time(section)
+                            # if news time falls within one last 24 hours then the article is added to the list
+                            if within_one_day(milli_time):
+                                link = section.find('a', class_=SECTION)[LINK]
+                                chn_name = chn["link_2"]
+                                article = Article(chn_name, article_body.text, milli_time, link)
+                                article_list.append(article)
         else:
             return False
     if not article_list:

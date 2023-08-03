@@ -3,17 +3,18 @@ from telegram.ext import Application, CommandHandler, MessageHandler, filters, C
 from constants.general_constants import WELCOME_MESSAGE, BODY, FIND, SAVE_KEY, SAVE_TIME, keyboard, time_keyboard, \
     COMMANDS, ENTER_CHANNELS
 from constants.data_constants import TOKEN
-from database.checking import get_or_create_user
+from database.checking import check_user_if_exists
 from database.chg_channels import adding_channels, get_current_channel_list
 from database.chg_kw import saving_keywords
 from database.chg_status import change_status
 from database.chg_time_period import set_time
+from database.database import get_users_col
 from searching.keyword_processing import find_keyword_now, find_kw_periodically
 
 
 async def start_command(update, ctx):
     user_id = update.message.chat.id
-    get_or_create_user(user_id)
+    check_user_if_exists(user_id)
     await update.message.reply_text(WELCOME_MESSAGE, reply_markup=keyboard)
     return BODY
 
@@ -27,8 +28,17 @@ async def find_now(update, ctx):
 
 async def keywords_f(update, ctx):
     user_id = update.message.chat.id
-    text = "Enter/change keywords:"
-    await app.bot.send_message(user_id, text)
+    users_col = get_users_col()
+    user = users_col.find_one({"id": user_id})
+    current_kw = user["keywords"]
+    if current_kw:
+        kw_string = " ".join(current_kw).strip()
+        await app.bot.send_message(user_id, "Your current list of keywords:")
+        await app.bot.send_message(user_id, "`" + kw_string + "`", parse_mode="MarkdownV2")
+        await app.bot.send_message(user_id, "Enter your new list of keywords:")
+    else:
+        text = f"You've got no keywords.\n\nEnter your list of keywords:"
+        await app.bot.send_message(user_id, text)
     return SAVE_KEY
 
 
