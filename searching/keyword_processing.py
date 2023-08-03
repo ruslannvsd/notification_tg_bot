@@ -6,7 +6,7 @@ from telegram.ext import ContextTypes
 from classes_folder.article import Article
 from constants.data_constants import TO_BE_REPLACED, TO_BE_INSERTED, MESSAGE_DIV, TEXT_DIV, SECTION, LINK, DATETIME, \
     D_TIME
-from constants.general_constants import BODY
+from constants.general_constants import BODY, FLAG
 from database.database import get_all_users
 from database.getting import get_user
 from utils.list_functions import chn_frequency
@@ -47,6 +47,7 @@ async def find_kw_periodically(ctx: ContextTypes.DEFAULT_TYPE):
                         article_reply = article_msg(article)
                         await ctx.bot.send_message(chat_id=user.user_id, text=article_reply)
                     await ctx.bot.send_message(chat_id=user.user_id, text=articles[1])  # frequency of channels
+                    await ctx.bot.send_message(chat_id=user.user_id, text=FLAG)
                 else:
                     print(f"Nothing with {word} has been found.")
         print(f"Search for {user_id} has been completed")
@@ -67,6 +68,7 @@ async def find_keyword_now(update: Update, ctx):
                     article_reply = article_msg(article)
                     await update.message.reply_text(article_reply)
                 await update.message.reply_text(articles[1])  # frequency of channels
+                await update.message.reply_text(FLAG)
             else:
                 await update.message.reply_text(f"Nothing with {word} has been found.")
     else:
