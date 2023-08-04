@@ -1,6 +1,6 @@
 from constants.general_constants import BODY
 from database.database import get_users_col
-from searching.keyword_processing import handle_punctuation
+from searching.scrap_util import handle_punctuation
 
 
 async def saving_keywords(update, ctx):

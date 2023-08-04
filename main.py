@@ -9,7 +9,7 @@ from database.chg_kw import saving_keywords
 from database.chg_status import change_status
 from database.chg_time_period import set_time
 from database.database import get_users_col
-from searching.keyword_processing import find_keyword_now, find_kw_periodically
+from searching.scraping import repeating_scraping, now_scraping
 
 
 async def start_command(update, ctx):
@@ -71,7 +71,7 @@ conv_handler = ConversationHandler(
                 MessageHandler(filters.Regex(f"^{COMMANDS[5]}$"), add_channel)
             ],
             FIND: [
-                MessageHandler(filters.TEXT, find_keyword_now)
+                MessageHandler(filters.TEXT, now_scraping)
             ],
             SAVE_KEY: [
                 MessageHandler(filters.TEXT, saving_keywords)
@@ -93,5 +93,5 @@ if __name__ == "__main__":
     app = Application.builder().token(TOKEN).build()
     app.add_handler(conv_handler)
     job_queue = app.job_queue
-    job_queue.run_repeating(find_kw_periodically, interval=7200, first=3)
+    job_queue.run_repeating(repeating_scraping, interval=7200, first=3)
     app.run_polling(3)

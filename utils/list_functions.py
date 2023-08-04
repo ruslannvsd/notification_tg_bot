@@ -7,4 +7,5 @@ def chn_frequency(articles, word):
         chn_freq_sorted = sorted(channel_frequency.items(), key=lambda x: x[1], reverse=True)
         message = word + "\n\n"
         message += "\n".join(f"{frequency} : {channel}" for channel, frequency in chn_freq_sorted)
-        return message
+        total_sum = sum(num for _, num in chn_freq_sorted)
+        return message, total_sum
