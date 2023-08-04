@@ -1,7 +1,7 @@
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ConversationHandler
 
 from constants.general_constants import WELCOME_MESSAGE, BODY, FIND, SAVE_KEY, SAVE_TIME, keyboard, time_keyboard, \
-    COMMANDS, ENTER_CHANNELS
+    COMMANDS, ENTER_CHANNELS, STATUS_COMMANDS
 from constants.data_constants import TOKEN
 from database.checking import check_user_if_exists
 from database.chg_channels import adding_channels, get_current_channel_list
@@ -14,8 +14,14 @@ from searching.scraping import repeating_scraping, now_scraping
 
 async def start_command(update, ctx):
     user_id = update.message.chat.id
-    check_user_if_exists(user_id)
-    await update.message.reply_text(WELCOME_MESSAGE, reply_markup=keyboard)
+    status = STATUS_COMMANDS[0] if not check_user_if_exists(user_id) else STATUS_COMMANDS[1]
+    kb = keyboard(status)
+    await update.message.reply_text(WELCOME_MESSAGE, reply_markup=kb)
+    return BODY
+
+
+async def cancel_command(update, ctx):
+    await update.message.reply_text("Your last command is cancelled.")
     return BODY
 
 
@@ -67,7 +73,8 @@ conv_handler = ConversationHandler(
                 MessageHandler(filters.Regex(f"^{COMMANDS[1]}$"), find_now),
                 MessageHandler(filters.Regex(f"^{COMMANDS[2]}$"), keywords_f),
                 MessageHandler(filters.Regex(f"^{COMMANDS[3]}$"), before_time_set),
-                MessageHandler(filters.Regex(f"^{COMMANDS[4]}$"), change_status),
+                MessageHandler(filters.Regex(f"^{STATUS_COMMANDS[0]}$"), change_status),
+                MessageHandler(filters.Regex(f"^{STATUS_COMMANDS[1]}$"), change_status),
                 MessageHandler(filters.Regex(f"^{COMMANDS[5]}$"), add_channel)
             ],
             FIND: [
@@ -83,7 +90,7 @@ conv_handler = ConversationHandler(
                 MessageHandler(filters.TEXT, adding_channels)
             ]
         },
-        fallbacks=[CommandHandler(f"{COMMANDS[0]}", start_command)]
+        fallbacks=[CommandHandler(f"{COMMANDS[5]}", cancel_command)]
     )
 
 

@@ -7,7 +7,7 @@ from telegram.ext import ContextTypes
 
 from classes_folder.article import Article
 from constants.data_constants import MESSAGE_DIV, TEXT_DIV, SECTION, LINK
-from constants.general_constants import BODY
+from constants.general_constants import BODY, SAVE_KEY
 from database.database import get_all_users, get_one_user, get_users_col
 from searching.scrap_util import br_removing, get_time, within_period, handle_punctuation
 from utils.message_functions import article_msg
@@ -29,16 +29,18 @@ async def now_scraping(update: Update, ctx):
             articles.sort(key=lambda ar: ar.article_time)
             for art in articles:
                 article_reply = article_msg(art)
-                await ctx.bot.send_message(chat_id=user_id, text=article_reply)
-    return BODY
+                await update.message.reply_text(article_reply)
+        return BODY
+    else:
+        await update.message.reply_text(checked_words)
+        return SAVE_KEY
 
 
 async def repeating_scraping(ctx: ContextTypes.DEFAULT_TYPE):
     users = get_all_users()
     for user in users:
         user_id = user.user_id
-        print(user_id)
-        status = user.enable_disable
+        status = user.status
         if status is True:
             print(status)
             word_list = user.keywords

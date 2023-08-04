@@ -1,16 +1,16 @@
-from constants.general_constants import BODY
+from constants.general_constants import BODY, SAVE_KEY
 from database.database import get_users_col
 from searching.scrap_util import handle_punctuation
 
 
 async def saving_keywords(update, ctx):
     keywords = update.message.text.strip().split(" ")
-    checked_keywords = []
-    for word in keywords:
-        checked_word = handle_punctuation(word)
-        checked_keywords.append(checked_word)
-    message = change_keywords(update.message.chat.id, keywords)
-    await update.message.reply_text(message)
+    checked_keywords = handle_punctuation(keywords)
+    if keywords == checked_keywords:
+        message = change_keywords(update.message.chat.id, keywords)
+        await update.message.reply_text(message)
+    else:
+        await update.message.reply_text(checked_keywords)
     return BODY
 
 
