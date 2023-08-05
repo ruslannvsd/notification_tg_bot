@@ -17,7 +17,7 @@ def convert_to_readable_time(millis):
 
 def within_one_day(millis):
     now = datetime.now()
-    one_day = now - timedelta(hours=10)
+    one_day = now - timedelta(hours=3)
     milli_time = datetime.fromtimestamp(millis / 1000)
     if one_day <= milli_time <= now:
         return True

@@ -75,7 +75,7 @@ conv_handler = ConversationHandler(
                 MessageHandler(filters.Regex(f"^{COMMANDS[3]}$"), before_time_set),
                 MessageHandler(filters.Regex(f"^{STATUS_COMMANDS[0]}$"), change_status),
                 MessageHandler(filters.Regex(f"^{STATUS_COMMANDS[1]}$"), change_status),
-                MessageHandler(filters.Regex(f"^{COMMANDS[5]}$"), add_channel)
+                MessageHandler(filters.Regex(f"^{COMMANDS[4]}$"), add_channel)
             ],
             FIND: [
                 MessageHandler(filters.TEXT, now_scraping)

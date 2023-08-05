@@ -7,7 +7,7 @@ from telegram.ext import ContextTypes
 
 from classes_folder.article import Article
 from constants.data_constants import MESSAGE_DIV, TEXT_DIV, SECTION, LINK
-from constants.general_constants import BODY, SAVE_KEY
+from constants.general_constants import BODY, SPACE
 from database.database import get_all_users, get_one_user, get_users_col
 from searching.scrap_util import br_removing, get_time, within_period, handle_punctuation
 from utils.message_functions import article_msg
@@ -22,18 +22,21 @@ async def now_scraping(update: Update, ctx):
     if checked_words == word_list:
         user_data = get_users_col().find_one({"id": user_id})
         user = get_one_user(user_data)
-        print(user)
         articles_dict = get_articles_list(user, word_list)
-        for word, articles in articles_dict.items():
-            # await ctx.bot.send_message(chat_id=user_id, text=word)
-            articles.sort(key=lambda ar: ar.article_time)
-            for art in articles:
-                article_reply = article_msg(art)
-                await update.message.reply_text(article_reply)
+        if articles_dict:
+            for word, articles in articles_dict.items():
+                await ctx.bot.send_message(chat_id=user_id, text=f"{SPACE}\n{SPACE}\n{SPACE}{word}{SPACE}\n{SPACE}\n{SPACE}")
+                articles.sort(key=lambda ar: ar.article_time)
+                for art in articles:
+                    article_reply = article_msg(art)
+                    await update.message.reply_text(article_reply)
+        else:
+            await update.message.reply_text("Nothing has been found.")
+        print("Searching has been completed.")
         return BODY
     else:
         await update.message.reply_text(checked_words)
-        return SAVE_KEY
+        return BODY
 
 
 async def repeating_scraping(ctx: ContextTypes.DEFAULT_TYPE):
@@ -47,7 +50,7 @@ async def repeating_scraping(ctx: ContextTypes.DEFAULT_TYPE):
             print(word_list)
             articles_dict = get_articles_list(user, word_list)
             for word, articles in articles_dict.items():
-                await ctx.bot.send_message(chat_id=user_id, text=word)
+                await ctx.bot.send_message(chat_id=user_id, text=f"{SPACE}\n{SPACE}\n{SPACE}{word}{SPACE}\n{SPACE}\n{SPACE}")
                 articles.sort(key=lambda ar: ar.article_time)
                 for art in articles:
                     article_reply = article_msg(art)
@@ -70,7 +73,7 @@ def get_articles_list(user, word_list):
                     article_body_lower = article_body.text.lower()
                     for word in word_list:
                         if "_" not in word:
-                            if re.search(word, article_body_lower):
+                            if re.search(word.lower(), article_body_lower):
                                 milli_time = get_time(section)
                                 if within_period(milli_time):
                                     link = section.find('a', class_=SECTION)[LINK]
@@ -78,7 +81,7 @@ def get_articles_list(user, word_list):
                                     article = Article(chn_name, article_body.text, milli_time, link)
                                     articles_dict[word].append(article)
                         else:
-                            phrase = word.split("_")
+                            phrase = word.lower().split("_")
                             if phrase[0] in article_body_lower and phrase[1] in article_body_lower:
                                 milli_time = get_time(section)
                                 if within_period(milli_time):
