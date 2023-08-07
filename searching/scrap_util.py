@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 
 from constants.data_constants import DATETIME, D_TIME, TO_BE_REPLACED, TO_BE_INSERTED
+from constants.general_constants import SPACE
 from utils.time_functions import convert_to_millis
 
 
@@ -36,3 +37,7 @@ def within_period(millis):
         return True
     else:
         return False
+
+
+def heading_making(word, amount):
+    return f"{SPACE}\n{SPACE}\n{SPACE}{word} : {amount}{SPACE}\n{SPACE}\n{SPACE}"

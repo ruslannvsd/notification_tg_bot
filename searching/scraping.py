@@ -9,7 +9,7 @@ from classes_folder.article import Article
 from constants.data_constants import MESSAGE_DIV, TEXT_DIV, SECTION, LINK
 from constants.general_constants import BODY, SPACE
 from database.database import get_all_users, get_one_user, get_users_col
-from searching.scrap_util import br_removing, get_time, within_period, handle_punctuation
+from searching.scrap_util import br_removing, get_time, within_period, handle_punctuation, heading_making
 from utils.message_functions import article_msg
 
 
@@ -25,7 +25,8 @@ async def now_scraping(update: Update, ctx):
         articles_dict = get_articles_list(user, word_list)
         if articles_dict:
             for word, articles in articles_dict.items():
-                await ctx.bot.send_message(chat_id=user_id, text=f"{SPACE}\n{SPACE}\n{SPACE}{word}{SPACE}\n{SPACE}\n{SPACE}")
+                heading = heading_making(word, len(articles))
+                await ctx.bot.send_message(chat_id=user_id, text=heading)
                 articles.sort(key=lambda ar: ar.article_time)
                 for art in articles:
                     article_reply = article_msg(art)
@@ -50,7 +51,8 @@ async def repeating_scraping(ctx: ContextTypes.DEFAULT_TYPE):
             print(word_list)
             articles_dict = get_articles_list(user, word_list)
             for word, articles in articles_dict.items():
-                await ctx.bot.send_message(chat_id=user_id, text=f"{SPACE}\n{SPACE}\n{SPACE}{word}{SPACE}\n{SPACE}\n{SPACE}")
+                heading = heading_making(word, len(articles))
+                await ctx.bot.send_message(chat_id=user_id, text=heading)
                 articles.sort(key=lambda ar: ar.article_time)
                 for art in articles:
                     article_reply = article_msg(art)
