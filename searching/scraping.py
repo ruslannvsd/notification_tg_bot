@@ -102,7 +102,8 @@ def get_articles_list(user, word_list):
                                     articles_dict[word].append(article)
                         else:
                             phrase = word.lower().split("_")
-                            if phrase[0] in article_body_lower and phrase[1] in article_body_lower:
+                            pattern = re.compile(re.escape(phrase[0]) + r'.*' + re.escape(phrase[1]))
+                            if re.search(pattern, article_body_lower):
                                 milli_time = get_time(section)
                                 if within_period(milli_time):
                                     link = section.find('a', class_=SECTION)[LINK]

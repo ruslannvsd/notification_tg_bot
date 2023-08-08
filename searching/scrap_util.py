@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 
 from constants.data_constants import DATETIME, D_TIME, TO_BE_REPLACED, TO_BE_INSERTED
+from constants.general_constants import INTERVAL
 from utils.time_functions import convert_to_millis
 
 
@@ -38,7 +39,7 @@ def br_removing(br_soup):
 
 def within_period(millis):
     now = datetime.now()
-    one_day = now - timedelta(hours=12)
+    one_day = now - timedelta(hours=INTERVAL[1])
     milli_time = datetime.fromtimestamp(millis / 1000)
     if one_day <= milli_time <= now:
         return True

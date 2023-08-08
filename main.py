@@ -1,7 +1,7 @@
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ConversationHandler
 
 from constants.general_constants import WELCOME_MESSAGE, BODY, FIND, SAVE_KEY, SAVE_TIME, keyboard, time_keyboard, \
-    COMMANDS, ENTER_CHANNELS, STATUS_COMMANDS
+    COMMANDS, ENTER_CHANNELS, STATUS_COMMANDS, INTERVAL
 from constants.data_constants import TOKEN
 from database.checking import check_user_if_exists
 from database.chg_channels import adding_channels, get_current_channel_list
@@ -49,7 +49,7 @@ async def keywords_f(update, ctx):
 
 
 async def before_time_set(update, ctx):
-    text = "Choose a period of time of monitoring:"
+    text = "Choose time :"
     await update.message.reply_text(text, reply_markup=time_keyboard)
     return SAVE_TIME
 
@@ -100,5 +100,5 @@ if __name__ == "__main__":
     app = Application.builder().token(TOKEN).build()
     app.add_handler(conv_handler)
     job_queue = app.job_queue
-    job_queue.run_repeating(repeating_scraping, interval=43200, first=1)
+    job_queue.run_repeating(repeating_scraping, interval=INTERVAL[0], first=1)
     app.run_polling(3)
