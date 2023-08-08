@@ -7,9 +7,9 @@ from telegram.ext import ContextTypes
 
 from classes_folder.article import Article
 from constants.data_constants import MESSAGE_DIV, TEXT_DIV, SECTION, LINK
-from constants.general_constants import BODY, SPACE
+from constants.general_constants import BODY
 from database.database import get_all_users, get_one_user, get_users_col
-from searching.scrap_util import br_removing, get_time, within_period, handle_punctuation, heading_making
+from searching.scrap_util import br_removing, get_time, within_period, handle_punctuation, heading_making, TRIANGLE
 from utils.message_functions import article_msg
 
 
@@ -24,13 +24,21 @@ async def now_scraping(update: Update, ctx):
         user = get_one_user(user_data)
         articles_dict = get_articles_list(user, word_list)
         if articles_dict:
+            mess_id_list = []
             for word, articles in articles_dict.items():
                 heading = heading_making(word, len(articles))
-                await ctx.bot.send_message(chat_id=user_id, text=heading)
+                key_message = await update.message.reply_text(text=heading)
+                message_id = key_message.message_id
+                mess_id_list.append(message_id)
                 articles.sort(key=lambda ar: ar.article_time)
                 for art in articles:
                     article_reply = article_msg(art)
                     await update.message.reply_text(article_reply)
+            for mess_id in mess_id_list:
+                await update.message.reply_text(
+                    text=TRIANGLE,
+                    reply_to_message_id=mess_id
+                )
         else:
             await update.message.reply_text("Nothing has been found.")
         print("Searching has been completed.")
@@ -50,13 +58,23 @@ async def repeating_scraping(ctx: ContextTypes.DEFAULT_TYPE):
             word_list = user.keywords
             print(word_list)
             articles_dict = get_articles_list(user, word_list)
-            for word, articles in articles_dict.items():
-                heading = heading_making(word, len(articles))
-                await ctx.bot.send_message(chat_id=user_id, text=heading)
-                articles.sort(key=lambda ar: ar.article_time)
-                for art in articles:
-                    article_reply = article_msg(art)
-                    await ctx.bot.send_message(chat_id=user_id, text=article_reply)
+            if articles_dict:
+                mess_id_list = []
+                for word, articles in articles_dict.items():
+                    heading = heading_making(word, len(articles))
+                    key_message = await ctx.bot.send_message(chat_id=user_id, text=heading)
+                    message_id = key_message.message_id
+                    mess_id_list.append(message_id)
+                    articles.sort(key=lambda ar: ar.article_time)
+                    for art in articles:
+                        article_reply = article_msg(art)
+                        await ctx.bot.send_message(chat_id=user_id, text=article_reply)
+                for mess_id in mess_id_list:
+                    await ctx.bot.send_message(
+                        chat_id=user_id,
+                        text=TRIANGLE,
+                        reply_to_message_id=mess_id
+                    )
     return BODY
 
 
@@ -92,4 +110,5 @@ def get_articles_list(user, word_list):
                                     article = Article(chn_name, article_body.text, milli_time, link)
                                     articles_dict[word].append(article)
     articles_dict = {word: articles_list for word, articles_list in articles_dict.items() if articles_list}
-    return articles_dict
+    articles_dict_sorted = dict(sorted(articles_dict.items(), key=lambda item: len(item[1]), reverse=True))
+    return articles_dict_sorted

@@ -1,8 +1,15 @@
 from datetime import datetime, timedelta
 
 from constants.data_constants import DATETIME, D_TIME, TO_BE_REPLACED, TO_BE_INSERTED
-from constants.general_constants import SPACE
 from utils.time_functions import convert_to_millis
+
+
+SPACE = " "
+TRIANGLE = f"{SPACE}{SPACE}{SPACE}🔺{SPACE}{SPACE}{SPACE}"
+
+
+def heading_making(word, amount):
+    return f"{SPACE}\n{SPACE}{word} : {amount}{SPACE}\n{SPACE}"
 
 
 def get_time(section):
@@ -31,13 +38,9 @@ def br_removing(br_soup):
 
 def within_period(millis):
     now = datetime.now()
-    one_day = now - timedelta(hours=4)
+    one_day = now - timedelta(hours=12)
     milli_time = datetime.fromtimestamp(millis / 1000)
     if one_day <= milli_time <= now:
         return True
     else:
         return False
-
-
-def heading_making(word, amount):
-    return f"{SPACE}\n{SPACE}\n{SPACE}{word} : {amount}{SPACE}\n{SPACE}\n{SPACE}"
